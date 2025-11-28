@@ -28,10 +28,10 @@
  */
 
 require_once('../../../config.php');
-require_once($CFG->libdir.'/adminlib.php');
-require_once($CFG->libdir.'/authlib.php');
-require_once($CFG->dirroot.'/user/filters/lib.php');
-require_once($CFG->dirroot.'/user/lib.php');
+require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->libdir . '/authlib.php');
+require_once($CFG->dirroot . '/user/filters/lib.php');
+require_once($CFG->dirroot . '/user/lib.php');
 
 $delete       = optional_param('delete', 0, PARAM_INT);
 $confirm      = optional_param('confirm', '', PARAM_ALPHANUM);   // The md5 confirmation hash.
@@ -92,7 +92,6 @@ if ($confirmuser && confirm_sesskey()) {
         echo $OUTPUT->header();
         redirect($returnurl, get_string('usernotconfirmed', '', fullname($user, true)));
     }
-
 } else if ($resendemail && confirm_sesskey()) {
     if (!$user = $DB->get_record('user', ['id' => $resendemail, 'mnethostid' => $CFG->mnet_localhost_id, 'deleted' => 0])) {
         throw new \moodle_exception('nousers');
@@ -159,8 +158,7 @@ if ($confirmuser && confirm_sesskey()) {
     if ($accessctrl != 'allow' && $accessctrl != 'deny') {
         throw new \moodle_exception('invalidaccessparameter', 'error');
     }
-    $aclrecord = $DB->get_record('mnet_sso_access_control',
-        ['username' => $user->username, 'mnet_host_id' => $user->mnethostid]);
+    $aclrecord = $DB->get_record('mnet_sso_access_control', ['username' => $user->username, 'mnet_host_id' => $user->mnethostid]);
     if (empty($aclrecord)) {
         $aclrecord = new stdClass();
         $aclrecord->mnet_host_id = $user->mnethostid;
@@ -173,7 +171,6 @@ if ($confirmuser && confirm_sesskey()) {
     }
     $mnethosts = $DB->get_records('mnet_host', null, 'id', 'id,wwwroot,name');
     redirect($returnurl);
-
 } else if ($suspend && confirm_sesskey()) {
     require_capability('moodle/user:update', $sitecontext);
 
@@ -186,7 +183,6 @@ if ($confirmuser && confirm_sesskey()) {
         }
     }
     redirect($returnurl);
-
 } else if ($unsuspend && confirm_sesskey()) {
     require_capability('moodle/user:update', $sitecontext);
 
@@ -197,7 +193,6 @@ if ($confirmuser && confirm_sesskey()) {
         }
     }
     redirect($returnurl);
-
 } else if ($unlock && confirm_sesskey()) {
     require_capability('moodle/user:update', $sitecontext);
 
@@ -238,11 +233,14 @@ foreach ($columns as $column) {
         } else {
             $columnicon = ($dir == "ASC") ? "sort_asc" : "sort_desc";
         }
-        $columnicon = $OUTPUT->pix_icon('t/' . $columnicon, get_string(strtolower($columndir)), 'core',
-                                        ['class' => 'iconsort']);
-
+        $columnicon = $OUTPUT->pix_icon(
+            't/' . $columnicon,
+            get_string(strtolower($columndir)),
+            'core',
+            ['class' => 'iconsort']
+        );
     }
-    $$column = "<a href=\"user.php?sort=$column&amp;dir=$columndir\">".$string[$column]."</a>$columnicon";
+    $$column = "<a href=\"user.php?sort=$column&amp;dir=$columndir\">" . $string[$column] . "</a>$columnicon";
 }
 
 // We need to check that alternativefullnameformat is not set to '' or language.
@@ -274,17 +272,27 @@ if ($sort == "name") {
     $sort = reset($usernames);
 }
 
-list($extrasql, $params) = $ufiltering->get_sql_filter();
-$users = get_users_listing($sort, $dir, $page * $perpage, $perpage, '', '', '',
-        $extrasql, $params, $context);
+[$extrasql, $params] = $ufiltering->get_sql_filter();
+$users = get_users_listing(
+    $sort,
+    $dir,
+    $page * $perpage,
+    $perpage,
+    '',
+    '',
+    '',
+    $extrasql,
+    $params,
+    $context
+);
 $usercount = get_users(false);
 $usersearchcount = get_users(false, '', false, null, "", '', '', '', '', '*', $extrasql, $params);
 
 if ($extrasql !== '') {
-    echo $OUTPUT->heading("$usersearchcount / $usercount ".get_string('users'));
+    echo $OUTPUT->heading("$usersearchcount / $usercount " . get_string('users'));
     $usercount = $usersearchcount;
 } else {
-    echo $OUTPUT->heading("$usercount ".get_string('users'));
+    echo $OUTPUT->heading("$usercount " . get_string('users'));
 }
 
 $strall = get_string('all');
@@ -300,9 +308,7 @@ if (!$users) {
     echo $OUTPUT->heading(get_string('nousersfound'));
 
     $table = null;
-
 } else {
-
     $countries = get_string_manager()->get_list_of_countries(true);
     if (empty($mnethosts)) {
         $mnethosts = $DB->get_records('mnet_host', null, 'id', 'id,wwwroot,name');
@@ -366,14 +372,12 @@ if (!$users) {
             if (is_mnet_remote_user($user)) {
                 // Mnet users have special access control, they can not be deleted the standard way or suspended.
                 $accessctrl = 'allow';
-                if ($acl = $DB->get_record('mnet_sso_access_control',
-                    ['username' => $user->username, 'mnet_host_id' => $user->mnethostid])) {
+                if ($acl = $DB->get_record('mnet_sso_access_control', ['username' => $user->username, 'mnet_host_id' => $user->mnethostid])) {
                     $accessctrl = $acl->accessctrl;
                 }
                 $changeaccessto = ($accessctrl == 'deny' ? 'allow' : 'deny');
-                $buttons[] = " (<a href=\"?acl={$user->id}&amp;accessctrl=$changeaccessto&amp;sesskey=".sesskey()."\">"
+                $buttons[] = " (<a href=\"?acl={$user->id}&amp;accessctrl=$changeaccessto&amp;sesskey=" . sesskey() . "\">"
                     . get_string($changeaccessto, 'mnet') . " access</a>)";
-
             } else {
                 if ($user->suspended) {
                     $url = new moodle_url($returnurl, ['unsuspend' => $user->id, 'sesskey' => sesskey()]);
@@ -407,11 +411,10 @@ if (!$users) {
         if (is_mnet_remote_user($user)) {
             // All mnet users are confirmed, let's print just the name of the host there.
             if (isset($mnethosts[$user->mnethostid])) {
-                $lastcolumn = get_string($accessctrl, 'mnet').': '.$mnethosts[$user->mnethostid]->name;
+                $lastcolumn = get_string($accessctrl, 'mnet') . ': ' . $mnethosts[$user->mnethostid]->name;
             } else {
                 $lastcolumn = get_string($accessctrl, 'mnet');
             }
-
         } else if ($user->confirmed == 0) {
             if (has_capability('moodle/user:update', $sitecontext)) {
                 $lastcolumn = html_writer::link(
@@ -419,15 +422,13 @@ if (!$users) {
                     $strconfirm
                 );
             } else {
-                $lastcolumn = "<span class=\"dimmed_text\">".get_string('confirm')."</span>";
+                $lastcolumn = "<span class=\"dimmed_text\">" . get_string('confirm') . "</span>";
             }
 
-            $lastcolumn .= ' | ' . html_writer::link(new moodle_url($returnurl,
-                [
-                    'resendemail' => $user->id,
-                    'sesskey' => sesskey(),
-                ]
-            ), $strresendemail);
+            $lastcolumn .= ' | ' . html_writer::link(
+                new moodle_url($returnurl, ['resendemail' => $user->id, 'sesskey' => sesskey()]),
+                $strresendemail
+            );
         }
 
         if ($user->lastaccess) {
