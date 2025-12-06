@@ -54,8 +54,7 @@ admin_externalpage_setup('editusers');
 $sitecontext = context_system::instance();
 $site = get_site();
 
-if (!has_capability('moodle/user:update', $sitecontext)
-    && !has_capability('moodle/user:delete', $sitecontext)) {
+if (!has_capability('moodle/user:update', $sitecontext) && !has_capability('moodle/user:delete', $sitecontext)) {
     throw new \moodle_exception('nopermissions', 'error', '', 'edit/delete users');
 }
 
@@ -69,8 +68,10 @@ $strunlock = get_string('unlockaccount', 'admin');
 $strconfirm = get_string('confirm');
 $strresendemail = get_string('resendemail');
 
-$returnurl = new moodle_url('/admin/tool/browse_users_classic/index.php',
-    ['sort' => $sort, 'dir' => $dir, 'perpage' => $perpage, 'page' => $page]);
+$returnurl = new moodle_url(
+    '/admin/tool/browse_users_classic/index.php',
+    ['sort' => $sort, 'dir' => $dir, 'perpage' => $perpage, 'page' => $page]
+);
 
 $PAGE->set_primary_active_tab('siteadminnode');
 $PAGE->navbar->add(get_string('userlist', 'admin'), $PAGE->url);
@@ -360,9 +361,8 @@ if (!$users) {
 
         // Delete button.
         if (has_capability('moodle/user:delete', $sitecontext)) {
-            if (is_mnet_remote_user($user) || $user->id == $USER->id || is_siteadmin($user)) {
-                // No deleting of self, mnet accounts or admins allowed.
-            } else {
+            // No deleting of self, mnet accounts or admins allowed.
+            if (!(is_mnet_remote_user($user) || $user->id == $USER->id || is_siteadmin($user))) {
                 $url = new moodle_url($returnurl, ['delete' => $user->id, 'sesskey' => sesskey()]);
                 $buttons[] = html_writer::link($url, $OUTPUT->pix_icon('t/delete', $strdelete));
             }
@@ -373,7 +373,11 @@ if (!$users) {
             if (is_mnet_remote_user($user)) {
                 // Mnet users have special access control, they can not be deleted the standard way or suspended.
                 $accessctrl = 'allow';
-                if ($acl = $DB->get_record('mnet_sso_access_control', ['username' => $user->username, 'mnet_host_id' => $user->mnethostid])) {
+                $acl = $DB->get_record(
+                    'mnet_sso_access_control',
+                    ['username' => $user->username, 'mnet_host_id' => $user->mnethostid]
+                );
+                if ($acl) {
                     $accessctrl = $acl->accessctrl;
                 }
                 $changeaccessto = ($accessctrl == 'deny' ? 'allow' : 'deny');
@@ -384,9 +388,8 @@ if (!$users) {
                     $url = new moodle_url($returnurl, ['unsuspend' => $user->id, 'sesskey' => sesskey()]);
                     $buttons[] = html_writer::link($url, $OUTPUT->pix_icon('t/show', $strunsuspend));
                 } else {
-                    if ($user->id == $USER->id || is_siteadmin($user)) {
-                        // No suspending of admins or self!
-                    } else {
+                    // No suspending of admins or self!
+                    if (!($user->id == $USER->id || is_siteadmin($user))) {
                         $url = new moodle_url($returnurl, ['suspend' => $user->id, 'sesskey' => sesskey()]);
                         $buttons[] = html_writer::link($url, $OUTPUT->pix_icon('t/hide', $strsuspend));
                     }
