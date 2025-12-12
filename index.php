@@ -355,6 +355,19 @@ if (!$users) {
     $table->colclasses[] = 'centeralign';
 
     $table->id = "users";
+
+    $editlinkquery = [];
+    $viewprofileafteredit = get_config('tool_browse_users_classic', 'viewprofileafteredit');
+    if ($viewprofileafteredit) {
+        $editlinkquery['returnto'] = 'profile';
+    }
+
+    $editprofiletarget = get_config('tool_browse_users_classic', 'editprofiletarget');
+    $editlinkattributes = [];
+    if ($editprofiletarget) {
+        $editlinkattributes['target'] = $editprofiletarget;
+    }
+
     foreach ($users as $user) {
         $buttons = [];
         $lastcolumn = '';
@@ -406,8 +419,8 @@ if (!$users) {
         if (has_capability('moodle/user:update', $sitecontext)) {
             // Prevent editing of admins by non-admins.
             if (is_siteadmin($USER) || !is_siteadmin($user)) {
-                $url = new moodle_url('/user/editadvanced.php', ['id' => $user->id, 'course' => $site->id]);
-                $buttons[] = html_writer::link($url, $OUTPUT->pix_icon('t/edit', $stredit));
+                $url = new moodle_url('/user/editadvanced.php', ['id' => $user->id, 'course' => $site->id] + $editlinkquery);
+                $buttons[] = html_writer::link($url, $OUTPUT->pix_icon('t/edit', $stredit), $editlinkattributes);
             }
         }
 
@@ -472,8 +485,8 @@ if (!empty($table)) {
     echo $OUTPUT->paging_bar($usercount, $page, $perpage, $baseurl);
 }
 if (has_capability('moodle/user:create', $sitecontext)) {
-    $url = new moodle_url('/user/editadvanced.php', ['id' => -1]);
-    echo $OUTPUT->single_button($url, get_string('addnewuser'), 'get');
+    $url = new moodle_url('/user/editadvanced.php', ['id' => -1] + $editlinkquery);
+    echo $OUTPUT->single_button($url, get_string('addnewuser'), 'get', $editlinkattributes);
 }
 
 echo $OUTPUT->footer();

@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 if (!$hassiteconfig) {
     return;
 }
-
+// Add 'Browse users (classic mode)' page to 'Accounts' section.
 $browsepage = new admin_externalpage(
     'tool_browse_users_classic',
     get_string('pluginname', 'tool_browse_users_classic'),
@@ -36,3 +36,28 @@ $browsepage = new admin_externalpage(
 );
 
 $ADMIN->add('accounts', $browsepage, 'userbulk');
+
+// Add a settings page.
+$settings = new admin_settingpage('tool_browse_users_classic_settings', get_string('pluginname', 'tool_browse_users_classic'));
+$ADMIN->add('tools', $settings);
+
+// Add redirect setting.
+$settings->add(new admin_setting_configcheckbox(
+    'tool_browse_users_classic/viewprofileafteredit',
+    get_string('viewprofileafteredit', 'tool_browse_users_classic'),
+    get_string('viewprofileafteredit_desc', 'tool_browse_users_classic'),
+    0
+));
+
+// Add redirect setting.
+$settings->add(new admin_setting_configselect(
+    'tool_browse_users_classic/editprofiletarget',
+    get_string('editprofiletarget', 'tool_browse_users_classic'),
+    get_string('editprofiletarget_desc', 'tool_browse_users_classic'),
+    '',
+    [
+        '' => get_string('editprofiletarget_self', 'tool_browse_users_classic'),
+        '_blank' => get_string('editprofiletarget_newtab', 'tool_browse_users_classic'),
+        'profile' => get_string('editprofiletarget_same', 'tool_browse_users_classic'),
+    ]
+));
