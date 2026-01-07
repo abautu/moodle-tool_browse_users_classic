@@ -24,15 +24,18 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-if (!$hassiteconfig) {
+if (
+    !$hassiteconfig
+    && !has_any_capability(['moodle/user:update', 'moodle/user:delete'], context_system::instance())
+) {
     return;
 }
 // Add 'Browse users (classic mode)' page to 'Accounts' section.
 $browsepage = new admin_externalpage(
     'tool_browse_users_classic',
     get_string('pluginname', 'tool_browse_users_classic'),
-    new moodle_url('/admin/tool/browse_users_classic/index.php'),
-    'moodle/user:update'
+    new \core\url('/admin/tool/browse_users_classic/index.php'),
+    ['moodle/user:update', 'moodle/user:delete']
 );
 
 $ADMIN->add('accounts', $browsepage, 'userbulk');
