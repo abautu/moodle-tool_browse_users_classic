@@ -455,7 +455,10 @@ if (!$users) {
         $fullname = fullname($user, true);
 
         $row = [];
-        $row[] = "<a href=\"../user/view.php?id=$user->id&amp;course=$site->id\">$fullname</a>";
+        $row[] = html_writer::link(
+            new moodle_url('/user/profile.php', ['id' => $user->id, 'course' => $site->id]),
+            $fullname
+        );
         foreach ($extracolumns as $field) {
             $row[] = s($user->{$field});
         }
