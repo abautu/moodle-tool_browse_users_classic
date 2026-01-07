@@ -304,6 +304,17 @@ echo $OUTPUT->paging_bar($usercount, $page, $perpage, $baseurl);
 
 flush();
 
+$editlinkquery = [];
+$viewprofileafteredit = get_config('tool_browse_users_classic', 'viewprofileafteredit');
+if ($viewprofileafteredit) {
+    $editlinkquery['returnto'] = 'profile';
+}
+
+$editprofiletarget = get_config('tool_browse_users_classic', 'editprofiletarget');
+$editlinkattributes = [];
+if ($editprofiletarget) {
+    $editlinkattributes['target'] = $editprofiletarget;
+}
 
 if (!$users) {
     $match = [];
@@ -355,18 +366,6 @@ if (!$users) {
     $table->colclasses[] = 'centeralign';
 
     $table->id = "users";
-
-    $editlinkquery = [];
-    $viewprofileafteredit = get_config('tool_browse_users_classic', 'viewprofileafteredit');
-    if ($viewprofileafteredit) {
-        $editlinkquery['returnto'] = 'profile';
-    }
-
-    $editprofiletarget = get_config('tool_browse_users_classic', 'editprofiletarget');
-    $editlinkattributes = [];
-    if ($editprofiletarget) {
-        $editlinkattributes['target'] = $editprofiletarget;
-    }
 
     foreach ($users as $user) {
         $buttons = [];
