@@ -180,7 +180,11 @@ if ($confirmuser && confirm_sesskey()) {
         if (!is_siteadmin($user) && $USER->id != $user->id && $user->suspended != 1) {
             $user->suspended = 1;
             // Force logout.
-            \core\session\manager::kill_user_sessions($user->id);
+            if ($CFG->branch >= 405) {
+                \core\session\manager::destroy_user_sessions($user->id, true);
+            } else {
+                \core\session\manager::kill_user_sessions($user->id);
+            }
             user_update_user($user, false);
         }
     }
