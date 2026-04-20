@@ -61,7 +61,6 @@ if (!has_capability('moodle/user:update', $sitecontext) && !has_capability('mood
 $stredit   = get_string('edit');
 $strdelete = get_string('delete');
 $strdeletecheck = get_string('deletecheck');
-$strshowallusers = get_string('showallusers');
 $strsuspend = get_string('suspenduser', 'admin');
 $strunsuspend = get_string('unsuspenduser', 'admin');
 $strunlock = get_string('unlockaccount', 'admin');
